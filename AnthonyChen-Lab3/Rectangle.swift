@@ -39,12 +39,13 @@ class Rectangle: Shape {
         color.setStroke()
         path.stroke()
     }
+
     
-    override func resize(by factor: CGFloat, currentWidth: CGFloat, currentHeight: CGFloat) {
-        // resize the shape by a factor
-        width = currentWidth * factor
-        height = currentHeight * factor
-        draw()
-    }
+     override func resize(by factor: CGFloat, currentWidth: CGFloat, currentHeight: CGFloat) {
+         // resize the shape by a factor
+         width = currentWidth * factor
+         height = currentHeight * factor
+         draw()
+     }
 
 }

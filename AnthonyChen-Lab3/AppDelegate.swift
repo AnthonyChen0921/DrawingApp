@@ -30,21 +30,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
+    // tutorial: https://developer.apple.com/documentation/uikit/menus_and_shortcuts/add_home_screen_quick_actions
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-        
-        // if shortcur is draw, just open the app
-        if shortcutItem.type == "ErdongChen.AnthonyChen-Lab3.draw" {
-            completionHandler(true)
-            return
-        }
         // if shortcut is clear, clear the canvas
-        if shortcutItem.type == "ErdongChen.AnthonyChen-Lab3.clear" {
+        if shortcutItem.type == "ErdongChen.AnthonyChen-Lab3.rectangle" {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "ViewController") as! ViewController
-            vc.clearCanvas()
-            completionHandler(true)
+            vc.currentShapeSelected = "OutlineRectangle"
             return
         }
+        // if shortcur is draw, just open the app
+        if shortcutItem.type == "ErdongChen.AnthonyChen-Lab3.draw" {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "ViewController") as! ViewController
+            vc.currentMode = "draw"
+            return
+        }
+        
     }
 
 

@@ -36,9 +36,11 @@ class Shape: DrawingItem {
     }
 
     func move(to point: CGPoint) {
-        // update origin and update the path
+        // create a CGAffineTransform to move the point
+        var transform = CGAffineTransform.identity
+        transform = transform.translatedBy(x: point.x - origin.x, y: point.y - origin.y)
+        path.apply(transform)
         origin = point
-        self.draw()
     }
 
     func resize(by factor: CGFloat, currentWidth: CGFloat, currentHeight: CGFloat) {
@@ -47,9 +49,10 @@ class Shape: DrawingItem {
 
     func rotate(by angle: CGFloat) {
         self.angle = angle
-        self.draw()
+        rotateHelper()
     }
 
+    // code snippet from https://piazza.com/class/l77ttghofcl355/post/135
     func rotateHelper() {
         // rotate the shape by an angle
         var transform = CGAffineTransform.identity

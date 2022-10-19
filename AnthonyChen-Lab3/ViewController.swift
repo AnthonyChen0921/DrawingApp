@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController, UIGestureRecognizerDelegate {
+    var audioPlayer: AVAudioPlayer?
     
     // timer
     var timer = Timer()
@@ -82,9 +84,16 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
 
         // add gesture recognizer
         addGesture()
+        
     }
+    
+    
+    
     @IBAction func autoPliotEngaged(_ sender: Any) {
         autoPilot = !autoPilot
+        if(autoPilot){
+            playSound(sound: "auto2", extendName: "wav")
+        }
     }
     @objc func runTimer(){
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
@@ -106,6 +115,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
             // init shape
             shapeSelectorImplementor(shape: currentShapeSelected!, point: randomPoint)
             shapeCanvas.items.append(currentShape!)
+            playSound(sound: "CoolClick", extendName: "wav")
             
             // update timer
             // print(randomPoint)
@@ -118,30 +128,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         // call pageChangeImplementor
         pageChangeImplementor(num: pageControl.currentPage)
     }
-    func pageChangeImplementor(num: Int) {
-        switch num {
-        case 0:
-            shapeCanvas.backgroundColor = UIColor.white
-        case 1:
-            shapeCanvas.backgroundColor = UIColor.systemGray4
-        case 2:
-            shapeCanvas.backgroundColor = UIColor.lightGray
-        case 3:
-            shapeCanvas.backgroundColor = UIColor.gray
-        case 4:
-            shapeCanvas.backgroundColor = UIColor.systemOrange
-        case 5:
-            shapeCanvas.backgroundColor = UIColor.systemRed
-        case 6:
-            shapeCanvas.backgroundColor = UIColor.systemPink
-        case 7:
-            shapeCanvas.backgroundColor = UIColor.systemMint
-        case 8:
-            shapeCanvas.backgroundColor = UIColor.systemCyan
-        default:
-            shapeCanvas.backgroundColor = UIColor.white
-        }
-    }
+    
     
     // tutorial from https://www.youtube.com/watch?v=v6XQlgqCw18
     // only reference how to get a scale from gesture recoginzer
@@ -157,30 +144,31 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         shapeCanvas.addGestureRecognizer(rotationGesture)
         // add swipe gesture
-        let swipeGestureLeft = UISwipeGestureRecognizer(target: self, action: #selector(didSwipe(_:)))
-        swipeGestureLeft.direction = .left
-        shapeCanvas.addGestureRecognizer(swipeGestureLeft)
-        let swipeGestureRight = UISwipeGestureRecognizer(target: self, action: #selector(didSwipe(_:)))
-        swipeGestureRight.direction = .right
-        shapeCanvas.addGestureRecognizer(swipeGestureRight)
+//        let swipeGestureLeft = UISwipeGestureRecognizer(target: self, action: #selector(didSwipe(_:)))
+//        swipeGestureLeft.direction = .left
+//        shapeCanvas.addGestureRecognizer(swipeGestureLeft)
+//        let swipeGestureRight = UISwipeGestureRecognizer(target: self, action: #selector(didSswipe(_:)))
+//        swipeGestureRight.direction = .right
+//        shapeCanvas.addGestureRecognizer(swipeGestureRight)
     }
     @objc func didSwipe(_ gesture: UISwipeGestureRecognizer){
-        if gesture.state == .ended{
-            // if right swipe, minus 1 to pageControl
-            if gesture.direction == .right{
-                // loop back to last page
-                if pageControl.currentPage == 0{ pageControl.currentPage = pageControl.numberOfPages - 1}
-                else{pageControl.currentPage -= 1}
-                pageChangeImplementor(num: pageControl.currentPage)
+        if currentMode == "erase"{
+            if gesture.state == .ended{
+                // if right swipe, minus 1 to pageControl
+                if gesture.direction == .right{
+                    // loop back to last page
+                    if pageControl.currentPage == 0{ pageControl.currentPage = pageControl.numberOfPages - 1}
+                    else{pageControl.currentPage -= 1}
+                    pageChangeImplementor(num: pageControl.currentPage)
+                }
+                // if left swipe, plus 1 to pageControl
+                else if gesture.direction == .left{
+                    // loop back to first page
+                    if pageControl.currentPage == pageControl.numberOfPages - 1{ pageControl.currentPage = 0}
+                    else{pageControl.currentPage += 1}
+                    pageChangeImplementor(num: pageControl.currentPage)
+                }
             }
-            // if left swipe, plus 1 to pageControl
-            else if gesture.direction == .left{
-                // loop back to first page
-                if pageControl.currentPage == pageControl.numberOfPages - 1{ pageControl.currentPage = 0}
-                else{pageControl.currentPage += 1}
-                pageChangeImplementor(num: pageControl.currentPage)
-            }
-            
         }
     }
 
@@ -236,6 +224,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
                 if let triangle = resizeShape as? Triangle {
                     triangle.resize(by: scale, currentWidth: currentWidth, currentHeight: currentHeight)
                 }
+                //resizeShape.resize(by: scale, currentWidth: currentWidth, currentHeight: currentHeight)
             }
             shapeCanvas.setNeedsDisplay()
         }
@@ -279,16 +268,21 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         if currentMode == "draw"{
             shapeSelectorImplementor(shape: currentShapeSelected!, point: touchPoint)
             shapeCanvas.items.append(currentShape!)
+            playSound(sound: "CoolClick", extendName: "wav")
         }
         // if mode is erase, check if touch point is in shape
         else if currentMode == "erase"{
             deleteShapeOnClickImplementor(_touchPoint: touchPoint)
+            playSound(sound: "ONOFF", extendName: "wav")
         }
         // if mode is move
         else if currentMode == "move"{
             moveShapeOnClickImplementor(_touchPoint: touchPoint)
+            playSound(sound: "whoosh", extendName: "wav")
+
         }
     }
+
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if currentMode == "move"{
@@ -383,6 +377,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         default:
             currentShapeSelected = "OutlineRectangle"
         }
+        playSound(sound: "bubbleClick", extendName: "wav")
     }
     
     // change the mode of the app
@@ -390,6 +385,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         // update the current mode
         let selectedSegment = (sender as! UISegmentedControl).selectedSegmentIndex
         currentMode = modeArr[selectedSegment]
+        playSound(sound: "bubbleClick", extendName: "wav")
         //print("current mode is \(currentMode)")
     }
     
@@ -430,6 +426,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBAction func clearAllShape(_ sender: Any) {
         shapeCanvas.items = []
         shapeCanvas.setNeedsDisplay()
+        playSound(sound: "trash", extendName: "mp3")
     }
 
     // shortcut func clear
@@ -448,6 +445,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
                 buttonMap[color]?.alpha = 0.5
             }
         }
+        playSound(sound: "mouseClick", extendName: "wav")
     }
 
     // Helper
@@ -468,7 +466,46 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         touchPoint = touchPointDeviationOffset(point: touchPoint as CGPoint)
         return touchPoint
     }
-
+    
+    // Helper
+    // background color setting
+    func pageChangeImplementor(num: Int) {
+        switch num {
+        case 0:
+            shapeCanvas.backgroundColor = UIColor.white
+        case 1:
+            shapeCanvas.backgroundColor = UIColor.systemGray4
+        case 2:
+            shapeCanvas.backgroundColor = UIColor.lightGray
+        case 3:
+            shapeCanvas.backgroundColor = UIColor.gray
+        case 4:
+            shapeCanvas.backgroundColor = UIColor.systemOrange
+        case 5:
+            shapeCanvas.backgroundColor = UIColor.systemRed
+        case 6:
+            shapeCanvas.backgroundColor = UIColor.systemPink
+        case 7:
+            shapeCanvas.backgroundColor = UIColor.systemMint
+        case 8:
+            shapeCanvas.backgroundColor = UIColor.systemCyan
+        default:
+            shapeCanvas.backgroundColor = UIColor.white
+        }
+    }
+    
+    // sounds tutorial from https://www.youtube.com/watch?v=2kflmGGMBOA
+    func playSound(sound: String, extendName: String){
+        let pathToSound = Bundle.main.path(forResource: sound, ofType: extendName)
+        let url = URL(fileURLWithPath: pathToSound!)
+        do{
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        }
+        catch{
+            print("Audio play goes wrong")
+        }
+    }
 }
 
 
@@ -491,4 +528,6 @@ extension String {
             return UIColor.systemRed
         }
     }
+    
+    
 }
