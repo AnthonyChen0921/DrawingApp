@@ -22,3 +22,4 @@ Adding sound effect could make the app to have more interaction with the user, l
 
 BackGround color could be changed by using the picker at the bottom of the canvas.
 
+<img src="/WX20221018-201412@2x.png" alt="Alt text" title="Optional title"  height="800" width="400">
